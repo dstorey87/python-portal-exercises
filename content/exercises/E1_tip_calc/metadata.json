@@ -1,0 +1,25 @@
+{
+  "id": "E1_tip_calc",
+  "title": "Tip Calculator", 
+  "description": "Calculate tip and total amount for restaurant bills using basic arithmetic and user input",
+  "difficulty": "beginner",
+  "topics": ["arithmetic", "input", "output", "variables", "type-conversion"],
+  "estimatedTime": 20,
+  "order": 2,
+  "category": "basics",
+  "prerequisites": ["E0_greet"],
+  "objectives": [
+    "Handle user input with input() function",
+    "Convert strings to numbers using float()",
+    "Perform arithmetic calculations", 
+    "Format output with f-strings",
+    "Work with monetary values"
+  ],
+  "resources": [
+    {
+      "title": "Python Input and Output",
+      "url": "https://docs.python.org/3/tutorial/inputoutput.html",
+      "type": "documentation"
+    }
+  ]
+}

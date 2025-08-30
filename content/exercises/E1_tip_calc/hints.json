@@ -1,0 +1,30 @@
+[
+  {
+    "id": "hint_1",
+    "title": "Getting User Input",
+    "content": "Use `input()` to get text from the user, then convert it to a number with `float()`: `amount = float(input('Enter amount: '))`",
+    "order": 1,
+    "revealLevel": 1
+  },
+  {
+    "id": "hint_2",
+    "title": "Calculating the Tip",
+    "content": "To calculate a percentage: multiply by the percentage and divide by 100. For example: `tip = bill * (percentage / 100)`",
+    "order": 2,
+    "revealLevel": 2
+  },
+  {
+    "id": "hint_3",
+    "title": "Formatting Currency",
+    "content": "Use `:.2f` in f-strings to show exactly 2 decimal places: `f'${amount:.2f}'`",
+    "order": 3,
+    "revealLevel": 3
+  },
+  {
+    "id": "hint_4",
+    "title": "Complete Structure",
+    "content": "1. Get bill amount with `float(input())` 2. Get tip % with `float(input())` 3. Calculate tip: `bill * (tip_pct / 100)` 4. Add bill + tip for total 5. Print with `:.2f` formatting",
+    "order": 4,
+    "revealLevel": 4
+  }
+]
