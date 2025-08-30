@@ -1,340 +1,238 @@
 // =============================================================================
-// PYTHON PORTAL EXERCISES - CONTENT MANAGEMENT SYSTEM
-// Production-grade exercise content loader and API service
+// PYTHON PORTAL EXERCISES - MAIN EXPORT
+// Complete TypeScript package for all 17 exercises
 // =============================================================================
 
-import {
-  Exercise,
-  ExerciseContent,
-  ExerciseMetadata,
-  APIResponse,
-  ValidationError,
-  NotFoundError
+// Import all exercises from different difficulty levels
+import { exercises as beginnerExercises } from './exercises/beginner';
+import { exercises as intermediateExercises } from './exercises/intermediate';
+import { exercises as intermediate2Exercises } from './exercises/intermediate2';
+import { exercises as advancedExercises } from './exercises/advanced';
+
+// Import types from shared package
+import { 
+  Exercise, 
+  ExerciseMetadata, 
+  ExerciseDifficulty, 
+  PythonConcept 
 } from '@python-portal/types';
-import { promises as fs } from 'fs';
-import path from 'path';
+
+// =============================================================================
+// ALL EXERCISES COMBINED
+// =============================================================================
+
+export const ALL_EXERCISES: Exercise[] = [
+  ...beginnerExercises,
+  ...intermediateExercises,
+  ...intermediate2Exercises,
+  ...advancedExercises
+];
+
+// =============================================================================
+// UTILITY FUNCTIONS
+// =============================================================================
 
 /**
- * Exercise content loader with caching and validation
- * Manages loading and parsing of exercise files from the content directory
+ * Get all exercises
  */
-export class ExerciseLoader {
-  private contentPath: string;
-  private cache = new Map<string, Exercise>();
-  private cacheValid = false;
-
-  constructor(contentPath: string = './content') {
-    this.contentPath = path.resolve(contentPath);
-  }
-
-  /**
-   * Load all exercises from the content directory
-   * @returns Promise resolving to array of Exercise objects
-   */
-  async loadAll(): Promise<Exercise[]> {
-    if (this.cacheValid && this.cache.size > 0) {
-      return Array.from(this.cache.values()).sort((a, b) => a.order - b.order);
-    }
-
-    await this.refreshCache();
-    return Array.from(this.cache.values()).sort((a, b) => a.order - b.order);
-  }
-
-  /**
-   * Load specific exercise by ID
-   * @param id Exercise identifier (e.g., 'E0_greet')
-   * @returns Promise resolving to Exercise object
-   */
-  async loadById(id: string): Promise<Exercise> {
-    if (this.cache.has(id) && this.cacheValid) {
-      return this.cache.get(id)!;
-    }
-
-    const exercise = await this.loadExerciseFromDisk(id);
-    this.cache.set(id, exercise);
-    return exercise;
-  }
-
-  /**
-   * Load exercises filtered by difficulty
-   * @param difficulty Difficulty level to filter by
-   * @returns Promise resolving to filtered Exercise array
-   */
-  async loadByDifficulty(difficulty: 'beginner' | 'intermediate' | 'advanced'): Promise<Exercise[]> {
-    const allExercises = await this.loadAll();
-    return allExercises.filter(ex => ex.difficulty === difficulty);
-  }
-
-  /**
-   * Load exercises filtered by topic
-   * @param topic Topic to filter by
-   * @returns Promise resolving to filtered Exercise array
-   */
-  async loadByTopic(topic: string): Promise<Exercise[]> {
-    const allExercises = await this.loadAll();
-    return allExercises.filter(ex => ex.topics.includes(topic));
-  }
-
-  /**
-   * Get all available topics across exercises
-   * @returns Promise resolving to array of unique topics
-   */
-  async getTopics(): Promise<string[]> {
-    const allExercises = await this.loadAll();
-    const topics = new Set<string>();
-    allExercises.forEach(ex => ex.topics.forEach(topic => topics.add(topic)));
-    return Array.from(topics).sort();
-  }
-
-  /**
-   * Invalidate cache and force reload
-   */
-  invalidateCache(): void {
-    this.cache.clear();
-    this.cacheValid = false;
-  }
-
-  /**
-   * Refresh the entire exercise cache
-   * @private
-   */
-  private async refreshCache(): Promise<void> {
-    this.cache.clear();
-    
-    const exercisesPath = path.join(this.contentPath, 'exercises');
-    
-    try {
-      const exerciseDirs = await fs.readdir(exercisesPath, { withFileTypes: true });
-      
-      for (const dirent of exerciseDirs) {
-        if (dirent.isDirectory() && dirent.name.startsWith('E')) {
-          try {
-            const exercise = await this.loadExerciseFromDisk(dirent.name);
-            this.cache.set(exercise.id, exercise);
-          } catch (error) {
-            console.warn(`Failed to load exercise ${dirent.name}:`, error);
-          }
-        }
-      }
-      
-      this.cacheValid = true;
-    } catch (error) {
-      throw new Error(`Failed to read exercises directory: ${error}`);
-    }
-  }
-
-  /**
-   * Load single exercise from disk
-   * @param id Exercise ID
-   * @returns Promise resolving to Exercise object
-   * @private
-   */
-  private async loadExerciseFromDisk(id: string): Promise<Exercise> {
-    const exercisePath = path.join(this.contentPath, 'exercises', id);
-    
-    try {
-      // Check if directory exists
-      await fs.access(exercisePath);
-    } catch {
-      throw new NotFoundError('Exercise', id);
-    }
-
-    try {
-      // Load metadata
-      const metadataPath = path.join(exercisePath, 'metadata.json');
-      const metadataContent = await fs.readFile(metadataPath, 'utf-8');
-      const metadata: ExerciseMetadata = JSON.parse(metadataContent);
-
-      // Load instruction content
-      const instructionsPath = path.join(exercisePath, 'instructions.md');
-      const instructions = await fs.readFile(instructionsPath, 'utf-8');
-
-      // Load starter code
-      const starterPath = path.join(exercisePath, 'starter.py');
-      const starterCode = await fs.readFile(starterPath, 'utf-8');
-
-      // Load test code
-      const testPath = path.join(exercisePath, 'test.py');
-      const testCode = await fs.readFile(testPath, 'utf-8');
-
-      // Load solution code
-      const solutionPath = path.join(exercisePath, 'solution.py');
-      const solutionCode = await fs.readFile(solutionPath, 'utf-8');
-
-      // Create exercise object
-      const exercise: Exercise = {
-        id,
-        title: metadata.title || id.replace('_', ' ').replace(/E\d+\s*/, ''),
-        description: metadata.description || '',
-        instructions: instructions.trim(),
-        starterCode: starterCode.trim(),
-        testCode: testCode.trim(),
-        solutionCode: solutionCode.trim(),
-        difficulty: metadata.difficulty,
-        topics: metadata.topics,
-        order: metadata.order,
-        estimatedTime: metadata.estimatedTime,
-        filePath: exercisePath,
-        category: metadata.category
-      };
-
-      // Validate exercise structure
-      validateExercise(exercise);
-
-      return exercise;
-    } catch (error) {
-      if (error instanceof NotFoundError || error instanceof ValidationError) {
-        throw error;
-      }
-      throw new Error(`Failed to load exercise ${id}: ${error}`);
-    }
-  }
+export function getAllExercises(): Exercise[] {
+  return ALL_EXERCISES;
 }
 
 /**
- * Validate exercise structure and content
- * @param exercise Exercise object to validate
- * @throws ValidationError if exercise is invalid
+ * Get exercise by ID
  */
-export function validateExercise(exercise: Exercise): void {
-  const errors: string[] = [];
-
-  // Required fields validation
-  if (!exercise.id || typeof exercise.id !== 'string') {
-    errors.push('Exercise ID is required and must be a string');
-  }
-
-  if (!exercise.title || typeof exercise.title !== 'string') {
-    errors.push('Exercise title is required and must be a string');
-  }
-
-  if (!exercise.instructions || typeof exercise.instructions !== 'string') {
-    errors.push('Exercise instructions are required and must be a string');
-  }
-
-  if (!exercise.starterCode || typeof exercise.starterCode !== 'string') {
-    errors.push('Exercise starter code is required and must be a string');
-  }
-
-  if (!exercise.testCode || typeof exercise.testCode !== 'string') {
-    errors.push('Exercise test code is required and must be a string');
-  }
-
-  if (!exercise.solutionCode || typeof exercise.solutionCode !== 'string') {
-    errors.push('Exercise solution code is required and must be a string');
-  }
-
-  // Difficulty validation
-  const validDifficulties = ['beginner', 'intermediate', 'advanced'];
-  if (!validDifficulties.includes(exercise.difficulty)) {
-    errors.push(`Exercise difficulty must be one of: ${validDifficulties.join(', ')}`);
-  }
-
-  // Topics validation
-  if (!Array.isArray(exercise.topics) || exercise.topics.length === 0) {
-    errors.push('Exercise topics must be a non-empty array');
-  }
-
-  // Order validation
-  if (typeof exercise.order !== 'number' || exercise.order < 0) {
-    errors.push('Exercise order must be a non-negative number');
-  }
-
-  // Estimated time validation
-  if (typeof exercise.estimatedTime !== 'number' || exercise.estimatedTime <= 0) {
-    errors.push('Exercise estimated time must be a positive number');
-  }
-
-  // Content validation
-  if (exercise.starterCode.length < 10) {
-    errors.push('Starter code seems too short (minimum 10 characters)');
-  }
-
-  if (exercise.testCode.length < 20) {
-    errors.push('Test code seems too short (minimum 20 characters)');
-  }
-
-  if (exercise.instructions.length < 20) {
-    errors.push('Instructions seem too short (minimum 20 characters)');
-  }
-
-  if (errors.length > 0) {
-    throw new ValidationError(`Exercise validation failed: ${errors.join(', ')}`);
-  }
+export function getExercise(id: string): Exercise | undefined {
+  return ALL_EXERCISES.find(exercise => exercise.id === id);
 }
 
 /**
- * Get exercise statistics and metrics
- * @param exercises Array of exercises to analyze
- * @returns Statistics object
+ * Get exercises by difficulty level
  */
-export function getExerciseStats(exercises: Exercise[]) {
-  const stats = {
-    total: exercises.length,
-    byDifficulty: {
-      beginner: 0,
-      intermediate: 0,
-      advanced: 0
-    },
-    averageTime: 0,
-    totalTime: 0,
-    topics: new Set<string>(),
-    categories: new Set<string>()
-  };
-
-  exercises.forEach(exercise => {
-    // Count by difficulty
-    stats.byDifficulty[exercise.difficulty]++;
-    
-    // Calculate time metrics
-    stats.totalTime += exercise.estimatedTime;
-    
-    // Collect topics and categories
-    exercise.topics.forEach(topic => stats.topics.add(topic));
-    if (exercise.category) {
-      stats.categories.add(exercise.category);
-    }
-  });
-
-  stats.averageTime = Math.round(stats.totalTime / exercises.length);
-
-  return {
-    ...stats,
-    topics: Array.from(stats.topics),
-    categories: Array.from(stats.categories)
-  };
+export function getExercisesByDifficulty(difficulty: ExerciseDifficulty): Exercise[] {
+  return ALL_EXERCISES.filter(exercise => exercise.metadata.difficulty === difficulty);
 }
 
 /**
- * Search exercises by text content
- * @param exercises Array of exercises to search
- * @param query Search query
- * @returns Filtered exercises matching the query
+ * Get exercises by topic
  */
-export function searchExercises(exercises: Exercise[], query: string): Exercise[] {
-  if (!query || query.trim().length === 0) {
-    return exercises;
-  }
-
-  const searchTerm = query.toLowerCase().trim();
-  
-  return exercises.filter(exercise => 
-    exercise.title.toLowerCase().includes(searchTerm) ||
-    exercise.description.toLowerCase().includes(searchTerm) ||
-    exercise.topics.some(topic => topic.toLowerCase().includes(searchTerm)) ||
-    exercise.instructions.toLowerCase().includes(searchTerm) ||
-    (exercise.category && exercise.category.toLowerCase().includes(searchTerm))
+export function getExercisesByTopic(topic: string): Exercise[] {
+  return ALL_EXERCISES.filter(exercise => 
+    exercise.metadata.topics.includes(topic)
   );
 }
 
 /**
- * Default exercise loader instance
+ * Get exercises by Python concept
  */
-export const defaultLoader = new ExerciseLoader();
+export function getExercisesByConcept(concept: PythonConcept): Exercise[] {
+  return ALL_EXERCISES.filter(exercise => 
+    exercise.metadata.concepts.includes(concept)
+  );
+}
+
+/**
+ * Search exercises by title, instructions, or topics
+ */
+export function searchExercises(query: string): Exercise[] {
+  const lowercaseQuery = query.toLowerCase();
+  
+  return ALL_EXERCISES.filter(exercise => {
+    return (
+      exercise.title.toLowerCase().includes(lowercaseQuery) ||
+      exercise.instructions.toLowerCase().includes(lowercaseQuery) ||
+      exercise.metadata.topics.some(topic => 
+        topic.toLowerCase().includes(lowercaseQuery)
+      )
+    );
+  });
+}
+
+/**
+ * Get exercise metadata only (for performance)
+ */
+export function getExerciseMetadata(): ExerciseMetadata[] {
+  return ALL_EXERCISES.map(exercise => ({
+    id: exercise.id,
+    title: exercise.title,
+    difficulty: exercise.metadata.difficulty,
+    topics: exercise.metadata.topics,
+    estimatedTime: exercise.metadata.estimatedTime,
+    concepts: exercise.metadata.concepts
+  }));
+}
+
+/**
+ * Get exercises sorted by estimated completion time
+ */
+export function getExercisesByTime(): Exercise[] {
+  return [...ALL_EXERCISES].sort((a, b) => 
+    a.metadata.estimatedTime - b.metadata.estimatedTime
+  );
+}
+
+/**
+ * Get recommended next exercise based on completed exercises
+ */
+export function getRecommendedNext(completedIds: string[]): Exercise | undefined {
+  const completed = new Set(completedIds);
+  const incomplete = ALL_EXERCISES.filter(ex => !completed.has(ex.id));
+  
+  // Sort by difficulty and then by estimated time
+  const difficultyOrder = {
+    [ExerciseDifficulty.BEGINNER]: 1,
+    [ExerciseDifficulty.INTERMEDIATE]: 2,
+    [ExerciseDifficulty.ADVANCED]: 3
+  };
+  
+  return incomplete.sort((a, b) => {
+    const diffA = difficultyOrder[a.metadata.difficulty];
+    const diffB = difficultyOrder[b.metadata.difficulty];
+    
+    if (diffA !== diffB) {
+      return diffA - diffB;
+    }
+    
+    return a.metadata.estimatedTime - b.metadata.estimatedTime;
+  })[0];
+}
+
+/**
+ * Validate exercise structure
+ */
+export function validateExercise(exercise: Exercise): boolean {
+  return (
+    typeof exercise.id === 'string' &&
+    typeof exercise.title === 'string' &&
+    typeof exercise.instructions === 'string' &&
+    typeof exercise.starterCode === 'string' &&
+    typeof exercise.testCode === 'string' &&
+    typeof exercise.solutionCode === 'string' &&
+    typeof exercise.metadata === 'object' &&
+    Object.values(ExerciseDifficulty).includes(exercise.metadata.difficulty) &&
+    Array.isArray(exercise.metadata.topics) &&
+    typeof exercise.metadata.estimatedTime === 'number' &&
+    Array.isArray(exercise.metadata.concepts)
+  );
+}
+
+/**
+ * Get exercise statistics
+ */
+export function getExerciseStats() {
+  const stats = {
+    total: ALL_EXERCISES.length,
+    byDifficulty: {
+      [ExerciseDifficulty.BEGINNER]: 0,
+      [ExerciseDifficulty.INTERMEDIATE]: 0,
+      [ExerciseDifficulty.ADVANCED]: 0
+    },
+    averageTime: 0,
+    totalTime: 0,
+    conceptCoverage: {} as Record<PythonConcept, number>
+  };
+  
+  let totalTime = 0;
+  
+  ALL_EXERCISES.forEach(exercise => {
+    // Count by difficulty
+    stats.byDifficulty[exercise.metadata.difficulty]++;
+    
+    // Calculate time
+    totalTime += exercise.metadata.estimatedTime;
+    
+    // Count concept coverage
+    exercise.metadata.concepts.forEach(concept => {
+      stats.conceptCoverage[concept] = (stats.conceptCoverage[concept] || 0) + 1;
+    });
+  });
+  
+  stats.totalTime = totalTime;
+  stats.averageTime = Math.round(totalTime / ALL_EXERCISES.length);
+  
+  return stats;
+}
+
+// =============================================================================
+// RE-EXPORTS
+// =============================================================================
 
 // Re-export types for convenience
-export type {
+export {
   Exercise,
-  ExerciseContent,
-  ExerciseMetadata
+  ExerciseMetadata,
+  ExerciseDifficulty,
+  PythonConcept
 } from '@python-portal/types';
+
+// Re-export exercise collections by difficulty
+export {
+  beginnerExercises,
+  intermediateExercises,
+  intermediate2Exercises,
+  advancedExercises
+};
+
+// Individual exercise exports
+export * from './exercises/beginner';
+export * from './exercises/intermediate';
+export * from './exercises/intermediate2';
+export * from './exercises/advanced';
+
+// =============================================================================
+// DEFAULT EXPORT
+// =============================================================================
+
+export default {
+  exercises: ALL_EXERCISES,
+  getAllExercises,
+  getExercise,
+  getExercisesByDifficulty,
+  getExercisesByTopic,
+  getExercisesByConcept,
+  searchExercises,
+  getExerciseMetadata,
+  getRecommendedNext,
+  validateExercise,
+  getExerciseStats
+};
