@@ -1,0 +1,101 @@
+{
+  "curriculum": {
+    "title": "Python Foundations",
+    "description": "A comprehensive curriculum covering Python programming fundamentals through hands-on exercises",
+    "version": "1.0.0",
+    "totalExercises": 17,
+    "estimatedHours": 8,
+    "lastUpdated": "2025-01-01"
+  },
+  "learning_path": [
+    {
+      "phase": "Foundation",
+      "description": "Basic Python syntax and core concepts",
+      "exercises": ["E0_greet", "E1_tip_calc", "E1_seconds_to_hms"],
+      "objectives": [
+        "Understand function definitions and calls",
+        "Master string operations and formatting",
+        "Handle user input and output",
+        "Perform basic arithmetic operations"
+      ]
+    },
+    {
+      "phase": "String Processing", 
+      "description": "Advanced string manipulation and processing",
+      "exercises": ["E2_initials", "E2_username_slug"],
+      "objectives": [
+        "Extract and manipulate string components",
+        "Apply string validation techniques",
+        "Use regular expressions for pattern matching"
+      ]
+    },
+    {
+      "phase": "Control Flow",
+      "description": "Conditional logic and decision making",
+      "exercises": ["E3_grade_mapper", "E3_leap_year"],
+      "objectives": [
+        "Implement conditional statements",
+        "Use boolean logic effectively",
+        "Handle multiple conditions and edge cases"
+      ]
+    },
+    {
+      "phase": "Loops & Algorithms",
+      "description": "Iterative processes and algorithmic thinking",
+      "exercises": ["E4_fizzbuzz", "E4_prime_checker"],
+      "objectives": [
+        "Master loop constructs (for, while)",
+        "Implement classic algorithms",
+        "Optimize code for performance"
+      ]
+    },
+    {
+      "phase": "Functions & Modules",
+      "description": "Code organization and reusability",
+      "exercises": ["E5_math_utils", "E5_temp_convert", "E5_password_strength"],
+      "objectives": [
+        "Design modular functions",
+        "Create utility modules",
+        "Apply validation patterns"
+      ]
+    },
+    {
+      "phase": "Data Structures",
+      "description": "Working with collections and complex data",
+      "exercises": ["E6_set_ops", "E7_sum_numbers"],
+      "objectives": [
+        "Utilize Python data structures effectively",
+        "Perform set operations",
+        "Parse and process structured data"
+      ]
+    },
+    {
+      "phase": "Advanced Topics",
+      "description": "Complex problem solving and debugging",
+      "exercises": ["E8_ops_module", "E9_bug_hunt"],
+      "objectives": [
+        "Build comprehensive modules",
+        "Debug complex programs",
+        "Apply best practices and code quality"
+      ]
+    }
+  ],
+  "prerequisites": {
+    "E0_greet": [],
+    "E1_tip_calc": ["E0_greet"],
+    "E1_seconds_to_hms": ["E0_greet"],
+    "E2_initials": ["E0_greet", "E1_tip_calc"],
+    "E2_username_slug": ["E2_initials"],
+    "E3_grade_mapper": ["E1_tip_calc"],
+    "E3_leap_year": ["E3_grade_mapper"],
+    "E4_fizzbuzz": ["E3_leap_year"],
+    "E4_prime_checker": ["E4_fizzbuzz"],
+    "E5_math_utils": ["E4_prime_checker"],
+    "E5_temp_convert": ["E5_math_utils"],
+    "E5_password_strength": ["E2_username_slug"],
+    "E6_set_ops": ["E5_temp_convert"],
+    "E7_sum_numbers": ["E6_set_ops"],
+    "E8_ops_module": ["E7_sum_numbers"],
+    "E9_bug_hunt": ["E8_ops_module"]
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "categories": [
+    {
+      "id": "basics",
+      "name": "Python Basics",
+      "description": "Fundamental programming concepts including functions, variables, and basic operations",
+      "order": 1,
+      "color": "blue"
+    },
+    {
+      "id": "control-flow",
+      "name": "Control Flow",
+      "description": "Conditional statements, loops, and program flow control",
+      "order": 2,
+      "color": "green"
+    },
+    {
+      "id": "data-structures",
+      "name": "Data Structures",
+      "description": "Working with lists, dictionaries, sets, and other data containers",
+      "order": 3,
+      "color": "purple"
+    },
+    {
+      "id": "algorithms",
+      "name": "Algorithms",
+      "description": "Problem-solving techniques and algorithmic thinking",
+      "order": 4,
+      "color": "orange"
+    },
+    {
+      "id": "modules",
+      "name": "Modules & Packages",
+      "description": "Code organization, imports, and creating reusable modules",
+      "order": 5,
+      "color": "red"
+    },
+    {
+      "id": "debugging",
+      "name": "Debugging & Testing",
+      "description": "Finding and fixing bugs, writing tests, and code quality",
+      "order": 6,
+      "color": "yellow"
+    }
+  ]
+}
