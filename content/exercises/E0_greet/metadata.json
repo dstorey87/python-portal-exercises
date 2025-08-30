@@ -1,0 +1,29 @@
+{
+  "id": "E0_greet",
+  "title": "Greet by Name",
+  "description": "Learn functions and f-string formatting by creating a greeting function",
+  "difficulty": "beginner",
+  "topics": ["functions", "strings", "f-strings", "capitalization"],
+  "estimatedTime": 15,
+  "order": 1,
+  "category": "basics",
+  "prerequisites": [],
+  "objectives": [
+    "Define functions with parameters and return values",
+    "Use f-string formatting for dynamic strings",
+    "Apply string capitalization methods",
+    "Handle user input and output"
+  ],
+  "resources": [
+    {
+      "title": "Python Functions Tutorial",
+      "url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+      "type": "documentation"
+    },
+    {
+      "title": "f-strings Guide",
+      "url": "https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals",
+      "type": "documentation"
+    }
+  ]
+}

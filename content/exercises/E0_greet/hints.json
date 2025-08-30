@@ -1,0 +1,30 @@
+[
+  {
+    "id": "hint_1",
+    "title": "Function Structure",
+    "content": "Remember that a function needs to **return** a value, not just print it. Use the `return` keyword to send back your greeting string.",
+    "order": 1,
+    "revealLevel": 1
+  },
+  {
+    "id": "hint_2", 
+    "title": "String Capitalization",
+    "content": "Python strings have a `.capitalize()` method that makes the first letter uppercase and the rest lowercase. Try: `name.capitalize()`",
+    "order": 2,
+    "revealLevel": 2
+  },
+  {
+    "id": "hint_3",
+    "title": "f-string Formatting",
+    "content": "Use an f-string to combine text and variables: `f\"Hello, {variable}!\"`",
+    "order": 3,
+    "revealLevel": 3
+  },
+  {
+    "id": "hint_4",
+    "title": "Complete Solution Pattern",
+    "content": "The solution follows this pattern: `return f\"Hello, {name.capitalize()}!\"`",
+    "order": 4,
+    "revealLevel": 4
+  }
+]
